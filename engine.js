@@ -276,6 +276,17 @@ function runIntro() {
   }, 3700);
 }
 
+/* ---------- Browser language detection ---------- */
+function detectBrowserLang() {
+  const langs = navigator.languages || [navigator.language || 'en'];
+  for (const l of langs) {
+    const code = l.toLowerCase().split('-')[0];
+    if (code === 'es') return 'es';
+    if (code === 'en') return 'en';
+  }
+  return 'en';
+}
+
 /* ---------- Landing entry ---------- */
 function enter(lang) {
   currentLang = lang;
@@ -291,11 +302,11 @@ function enter(lang) {
 
   playCrossingTone();
 
-  setTimeout(() => landing.classList.add('fade-out'), 1000);
+  setTimeout(() => landing.classList.add('fade-out'), 900);
   setTimeout(() => {
     landing.style.display = 'none';
     runIntro();
-  }, 1700);
+  }, 1600);
 }
 
 /* ---------- Controls ---------- */
@@ -390,9 +401,17 @@ window.addEventListener('load', () => {
   setTextLevel(getTextLevel());
   setSoundEnabled(soundEnabled());
 
-  landing.style.display = 'grid';
+  landing.style.display = 'flex';
   intro.style.display   = 'none';
   ui.style.display      = 'none';
+
+  // Pre-highlight the browser's detected language
+  const detected = detectBrowserLang();
+  if (detected === 'es') {
+    document.getElementById('landing-es').classList.add('detected');
+  } else {
+    document.getElementById('landing-en').classList.add('detected');
+  }
 });
 
 landingEn.addEventListener('click', () => enter('en'));

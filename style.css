@@ -86,175 +86,184 @@ body::after {
 #landing {
   position: fixed;
   inset: 0;
-  display: grid;
-  grid-template-columns: 1fr 1px 1fr;
-  align-items: stretch;
-  z-index: 50;
-}
-
-.landing-side {
-  border: none;
-  background: transparent;
-  color: var(--char);
-  cursor: pointer;
-  width: 100%; height: 100%;
-  -webkit-appearance: none;
-  appearance: none;
-  touch-action: manipulation;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32px;
-  position: relative;
-  transition: background 600ms ease;
+  gap: 48px;
+  padding: 32px 24px calc(32px + env(safe-area-inset-bottom));
+  padding-top: calc(32px + env(safe-area-inset-top));
+  z-index: 50;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 45%, rgba(201,158,79,0.04) 0%, transparent 70%),
+    var(--bg);
 }
 
-.landing-en {
-  background: linear-gradient(135deg,
-    rgba(20,16,10,0.95) 0%,
-    rgba(14,11,7,0.98) 100%);
-}
-.landing-es {
-  background: linear-gradient(225deg,
-    rgba(20,16,10,0.95) 0%,
-    rgba(14,11,7,0.98) 100%);
-}
-
-.landing-en:hover { background: linear-gradient(135deg, rgba(28,22,14,0.98) 0%, rgba(20,15,9,1) 100%); }
-.landing-es:hover { background: linear-gradient(225deg, rgba(28,22,14,0.98) 0%, rgba(20,15,9,1) 100%); }
-
-.landing-inner {
-  text-align: center;
-  width: min(480px, 90vw);
-}
-
-.landing-title {
-  font-family: 'Cormorant SC', serif;
-  font-size: clamp(2rem, 5.5vw, 3.4rem);
-  font-weight: 300;
-  letter-spacing: 0.28em;
-  color: var(--char);
-  text-shadow: 0 0 40px rgba(237,230,214,0.08);
-  margin-bottom: 20px;
-}
-
-.landing-line {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(1rem, 2.6vw, 1.3rem);
-  font-style: italic;
-  font-weight: 300;
-  line-height: 1.7;
-  color: var(--char-dim);
-  letter-spacing: 0.03em;
-}
-
-/* The seam — the architectural heart */
-.landing-seam {
-  position: relative;
-  width: 1px;
+/* THRESHOLD / UMBRAL wordmark */
+.landing-wordmark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   pointer-events: none;
-  z-index: 10;
-  overflow: visible;
+  user-select: none;
 }
 
-.seam-line {
-  position: absolute;
-  left: 50%;
-  top: 0; bottom: 0;
-  width: 1px;
-  transform: translateX(-50%);
-  background: linear-gradient(to bottom,
-    transparent 0%,
-    var(--amber-dim) 15%,
-    var(--amber) 50%,
-    var(--amber-dim) 85%,
-    transparent 100%);
-  animation: seamBreath 5s ease-in-out infinite;
+.landing-title-en {
+  font-family: 'Cormorant SC', serif;
+  font-size: clamp(2rem, 8vw, 3.8rem);
+  font-weight: 300;
+  letter-spacing: 0.30em;
+  color: var(--char);
+  opacity: 0.92;
+  text-shadow: 0 0 60px rgba(237,230,214,0.06);
+  line-height: 1;
 }
 
-.seam-glow {
-  position: absolute;
-  left: 50%;
-  top: 0; bottom: 0;
-  width: 60px;
-  transform: translateX(-50%);
-  background: radial-gradient(ellipse 100% 50% at 50% 50%,
-    rgba(201,158,79,0.12) 0%, transparent 100%);
-  animation: seamBreath 5s ease-in-out infinite;
-}
-
-.seam-node {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 7px; height: 7px;
+.landing-seam-node {
+  width: 5px; height: 5px;
   border-radius: 50%;
   background: var(--amber);
   box-shadow:
-    0 0 12px rgba(201,158,79,0.6),
-    0 0 28px rgba(201,158,79,0.3);
-  animation: nodeGlow 5s ease-in-out infinite;
+    0 0 10px rgba(201,158,79,0.7),
+    0 0 24px rgba(201,158,79,0.3);
+  animation: nodeGlow 4s ease-in-out infinite;
 }
 
-@keyframes seamBreath {
-  0%,100% { opacity: 0.55; }
-  50% { opacity: 1; }
+.landing-title-es {
+  font-family: 'Cormorant SC', serif;
+  font-size: clamp(1.2rem, 4.5vw, 2.1rem);
+  font-weight: 300;
+  letter-spacing: 0.42em;
+  color: var(--char-dim);
+  opacity: 0.55;
+  line-height: 1;
 }
+
+/* Choice buttons */
+.landing-choices {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(440px, 92vw);
+  gap: 0;
+}
+
+.landing-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--char);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+  transition:
+    background 280ms ease,
+    border-color 280ms ease,
+    transform 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.landing-btn:hover,
+.landing-btn:focus-visible {
+  background: rgba(201,158,79,0.05);
+  border-color: var(--amber-dim);
+  outline: none;
+}
+
+.landing-btn.detected {
+  border-color: rgba(201,158,79,0.38);
+  background: rgba(201,158,79,0.05);
+  box-shadow: 0 0 28px rgba(201,158,79,0.06);
+}
+
+.landing-btn-lang {
+  font-family: 'Cormorant SC', serif;
+  font-size: clamp(1.1rem, 3.5vw, 1.4rem);
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  color: var(--char);
+  line-height: 1;
+}
+
+.landing-btn.detected .landing-btn-lang {
+  color: var(--amber);
+}
+
+.landing-btn-line {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(0.88rem, 2.4vw, 1.05rem);
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--char-dim);
+  opacity: 0.7;
+}
+
+/* Horizontal divider between buttons */
+.landing-divider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 24px;
+  gap: 0;
+  pointer-events: none;
+}
+
+.landing-divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--amber-dim), transparent);
+  opacity: 0.5;
+}
+
+.landing-divider-node {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--amber-dim);
+  margin: 0 8px;
+  animation: nodeGlow 4s ease-in-out infinite;
+}
+
 @keyframes nodeGlow {
-  0%,100% { transform: translate(-50%,-50%) scale(0.85); opacity: 0.7; }
-  50% { transform: translate(-50%,-50%) scale(1.15); opacity: 1; }
+  0%,100% { opacity: 0.5; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.2); }
 }
 
 .landing-hint {
   position: fixed;
-  bottom: calc(20px + env(safe-area-inset-bottom));
+  bottom: calc(16px + env(safe-area-inset-bottom));
   left: 0; right: 0;
   text-align: center;
   font-family: 'Cormorant SC', serif;
-  font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+  font-size: clamp(0.65rem, 1.6vw, 0.78rem);
   font-weight: 300;
   letter-spacing: 0.22em;
   color: var(--char-ghost);
   pointer-events: none;
-  transition: opacity 800ms ease;
+  transition: opacity 600ms ease;
 }
 
-/* Landing entry animations */
-#landing.entering .landing-side {
-  transition: opacity 900ms ease, transform 1100ms cubic-bezier(0.4,0,0.2,1);
+/* Entry animation */
+#landing.entering .landing-btn {
+  transition: opacity 700ms ease, transform 700ms ease;
 }
-#landing.entering.pick-en .landing-en {
-  transform: translateX(4px);
-}
-#landing.entering.pick-en .landing-es {
-  opacity: 0.08;
-  transform: translateX(20px);
-}
-#landing.entering.pick-es .landing-es {
-  transform: translateX(-4px);
-}
-#landing.entering.pick-es .landing-en {
-  opacity: 0.08;
-  transform: translateX(-20px);
-}
-#landing.entering .seam-line,
-#landing.entering .seam-glow {
-  animation: seamOpen 900ms forwards;
-}
-#landing.entering .seam-node {
-  animation: nodeOpen 900ms forwards;
-}
-@keyframes seamOpen {
-  to { opacity: 1; filter: brightness(1.4); }
-}
-@keyframes nodeOpen {
-  to { transform: translate(-50%,-50%) scale(2.2); opacity: 0; }
+#landing.entering.pick-en #landing-es,
+#landing.entering.pick-es #landing-en {
+  opacity: 0.1;
 }
 #landing.entering .landing-hint { opacity: 0; }
 
 #landing.fade-out {
-  animation: landingFade 900ms forwards;
+  animation: landingFade 800ms forwards;
 }
 @keyframes landingFade {
   to { opacity: 0; visibility: hidden; }
