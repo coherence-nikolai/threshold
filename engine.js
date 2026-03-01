@@ -1,5 +1,6 @@
-let currentLang = null;   // chosen on landing
+let currentLang = null;
 let currentField = "self";
+let isTransitioning = false;
 
 const langScreen = document.getElementById("lang-screen");
 const chooseEnBtn = document.getElementById("choose-en");
@@ -12,11 +13,9 @@ const nextBtn = document.getElementById("next");
 const langToggle = document.getElementById("language-toggle");
 const fieldButtons = document.querySelectorAll("#field-selector button");
 
-/* Next button text */
 const nextLabel = document.getElementById("next-label");
 const nextSub = document.getElementById("next-sub");
 
-/* Info modal elements */
 const infoBtn = document.getElementById("info-btn");
 const infoModal = document.getElementById("info-modal");
 const infoClose = document.getElementById("info-close");
@@ -27,6 +26,8 @@ const infoText1 = document.getElementById("info-text-1");
 const infoLabel2 = document.getElementById("info-label-2");
 const infoText2 = document.getElementById("info-text-2");
 
+/* ---------- Copy ---------- */
+
 function setIntroByLang() {
   const isSpanish = currentLang === "es";
 
@@ -36,7 +37,6 @@ function setIntroByLang() {
     : "a question is a doorway";
 
   document.title = titleText;
-
   document.getElementById("intro-title").textContent = titleText;
   document.getElementById("intro-subtitle").textContent = subtitleText;
 }
@@ -50,7 +50,8 @@ function updateCategoryLabels() {
 
 function updateNextCopy() {
   const isSpanish = currentLang === "es";
-  nextLabel.textContent = isSpanish ? "presiona el umbral" : "press the threshold";
+  // more resonant than "press the threshold"
+  nextLabel.textContent = isSpanish ? "cruzar" : "cross";
   nextSub.textContent = isSpanish ? "siguiente" : "next";
 }
 
@@ -73,17 +74,51 @@ function updateInfoModalCopy() {
   }
 }
 
-function showQuestion() {
-  const pool = QUESTION_DATA?.[currentLang]?.[currentField];
+/* ---------- Questions (with fade out/in) ---------- */
 
-  if (!pool || pool.length === 0) {
-    questionEl.textContent = "...";
+function pickQuestion() {
+  const pool = QUESTION_DATA?.[currentLang]?.[currentField];
+  if (!pool || pool.length === 0) return "...";
+  const i = Math.floor(Math.random() * pool.length);
+  return pool[i];
+}
+
+function setQuestionText(text) {
+  questionEl.textContent = text;
+}
+
+function showQuestion({ instant = false } = {}) {
+  if (!currentLang) return;
+
+  const newQ = pickQuestion();
+
+  if (instant || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    setQuestionText(newQ);
+    questionEl.classList.remove("q-out");
+    questionEl.classList.add("q-in");
     return;
   }
 
-  const randomIndex = Math.floor(Math.random() * pool.length);
-  questionEl.textContent = pool[randomIndex];
+  if (isTransitioning) return;
+  isTransitioning = true;
+
+  // fade out
+  questionEl.classList.add("q-out");
+  questionEl.classList.remove("q-in");
+
+  // after fade out, swap text and fade in
+  setTimeout(() => {
+    setQuestionText(newQ);
+    questionEl.classList.remove("q-out");
+    questionEl.classList.add("q-in");
+
+    setTimeout(() => {
+      isTransitioning = false;
+    }, 300);
+  }, 300);
 }
+
+/* ---------- Start ---------- */
 
 function startExperience() {
   langScreen.style.display = "none";
@@ -104,11 +139,11 @@ function startExperience() {
   setTimeout(() => {
     intro.style.display = "none";
     ui.style.display = "flex";
-    showQuestion();
+    showQuestion({ instant: true });
   }, 3200);
 }
 
-/* ---------- Landing choice ---------- */
+/* ---------- Landing ---------- */
 
 chooseEnBtn.addEventListener("click", () => {
   currentLang = "en";
@@ -122,7 +157,7 @@ chooseEsBtn.addEventListener("click", () => {
   startExperience();
 });
 
-/* ---------- Field selection ---------- */
+/* ---------- Category selection ---------- */
 
 fieldButtons.forEach(btn => {
   btn.addEventListener("click", () => {
@@ -131,11 +166,11 @@ fieldButtons.forEach(btn => {
   });
 });
 
-/* ---------- Threshold button = next ---------- */
+/* ---------- Next ---------- */
 
-nextBtn.addEventListener("click", showQuestion);
+nextBtn.addEventListener("click", () => showQuestion());
 
-/* ---------- Language toggle (after start) ---------- */
+/* ---------- Language toggle ---------- */
 
 langToggle.addEventListener("click", () => {
   if (!currentLang) return;
@@ -150,7 +185,6 @@ langToggle.addEventListener("click", () => {
   showQuestion();
 });
 
-/* Allow Enter/Space on language toggle for accessibility */
 langToggle.addEventListener("keydown", (e) => {
   if (e.key === "Enter" || e.key === " ") {
     e.preventDefault();
@@ -164,7 +198,6 @@ function openInfo() {
   updateInfoModalCopy();
   infoModal.classList.remove("hidden");
 }
-
 function closeInfo() {
   infoModal.classList.add("hidden");
 }
@@ -180,7 +213,7 @@ window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeInfo();
 });
 
-/* ---------- Auto-restore language ---------- */
+/* ---------- Auto-restore ---------- */
 
 window.addEventListener("load", () => {
   const saved = localStorage.getItem("threshold_lang");
