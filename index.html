@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>threshold</title>
-  <link rel="stylesheet" href="style.css?v=9" />
+  <link rel="stylesheet" href="style.css?v=10" />
 </head>
 <body>
 
@@ -23,7 +23,7 @@
     </div>
   </div>
 
-  <!-- Intro Title + Whisper (staged by JS/CSS) -->
+  <!-- Intro (staged by JS) -->
   <div id="intro" style="display:none;">
     <div id="intro-title">threshold</div>
     <div id="intro-subtitle">a question is a doorway</div>
@@ -32,50 +32,52 @@
   <!-- Main UI -->
   <div id="ui" style="display:none;">
 
-    <!-- small top-right toggle -->
+    <!-- Small hidden-ish language toggle -->
     <button id="language-toggle" type="button" aria-label="Toggle language">EN | ES</button>
 
-    <div id="topbar">
+    <!-- Minimal top row: categories + info -->
+    <div id="top-row" aria-label="Navigation">
+      <div id="cats" aria-label="Categories">
+        <button class="cat" data-field="self" type="button" aria-label="Self">
+          <span class="ico">○</span>
+          <span class="name" data-en="Self" data-es="Yo">Self</span>
+        </button>
+
+        <button class="cat" data-field="relationship" type="button" aria-label="Relationship">
+          <span class="ico">∞</span>
+          <span class="name" data-en="Relationship" data-es="Vínculo">Relationship</span>
+        </button>
+
+        <button class="cat" data-field="body" type="button" aria-label="Body">
+          <span class="ico">△</span>
+          <span class="name" data-en="Body" data-es="Cuerpo">Body</span>
+        </button>
+
+        <button class="cat" data-field="shadow" type="button" aria-label="Shadow">
+          <span class="ico">◑</span>
+          <span class="name" data-en="Shadow" data-es="Sombra">Shadow</span>
+        </button>
+
+        <button class="cat" data-field="time" type="button" aria-label="Time">
+          <span class="ico">⌛</span>
+          <span class="name" data-en="Time" data-es="Tiempo">Time</span>
+        </button>
+
+        <button class="cat" data-field="silence" type="button" aria-label="Silence">
+          <span class="ico">—</span>
+          <span class="name" data-en="Silence" data-es="Silencio">Silence</span>
+        </button>
+      </div>
+
       <button id="info-btn" type="button" aria-label="About">i</button>
     </div>
 
-    <div id="field-selector" aria-label="Categories">
-      <button data-field="self" type="button">
-        <span class="symbol">○</span>
-        <span class="label" data-en="Self" data-es="Yo">Self</span>
-      </button>
-
-      <button data-field="relationship" type="button">
-        <span class="symbol">∞</span>
-        <span class="label" data-en="Relationship" data-es="Vínculo">Relationship</span>
-      </button>
-
-      <button data-field="body" type="button">
-        <span class="symbol">△</span>
-        <span class="label" data-en="Body" data-es="Cuerpo">Body</span>
-      </button>
-
-      <button data-field="shadow" type="button">
-        <span class="symbol">◑</span>
-        <span class="label" data-en="Shadow" data-es="Sombra">Shadow</span>
-      </button>
-
-      <button data-field="time" type="button">
-        <span class="symbol">⌛</span>
-        <span class="label" data-en="Time" data-es="Tiempo">Time</span>
-      </button>
-
-      <button data-field="silence" type="button">
-        <span class="symbol">—</span>
-        <span class="label" data-en="Silence" data-es="Silencio">Silence</span>
-      </button>
-    </div>
-
+    <!-- Question -->
     <div id="question-container" aria-live="polite">
       <div id="question" class="q-in"></div>
     </div>
 
-    <!-- Threshold button (press to continue) -->
+    <!-- Threshold (Next) -->
     <button id="next" class="threshold-btn" type="button" aria-label="Next question">
       <span class="threshold-visual" aria-hidden="true">
         <span class="mirror"></span>
@@ -85,7 +87,7 @@
         <span class="gate"></span>
         <span class="spark"></span>
       </span>
-      <span class="threshold-sub" id="next-sub">next</span>
+      <span class="next-hint" id="next-hint">next</span>
     </button>
 
   </div>
@@ -113,7 +115,7 @@
     </div>
   </div>
 
-  <script src="questions.js?v=9"></script>
-  <script src="engine.js?v=9"></script>
+  <script src="questions.js?v=10"></script>
+  <script src="engine.js?v=10"></script>
 </body>
 </html>
