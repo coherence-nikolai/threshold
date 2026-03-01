@@ -12,6 +12,10 @@ const nextBtn = document.getElementById("next");
 const langToggle = document.getElementById("language-toggle");
 const fieldButtons = document.querySelectorAll("#field-selector button");
 
+/* Next button text */
+const nextLabel = document.getElementById("next-label");
+const nextSub = document.getElementById("next-sub");
+
 /* Info modal elements */
 const infoBtn = document.getElementById("info-btn");
 const infoModal = document.getElementById("info-modal");
@@ -44,11 +48,16 @@ function updateCategoryLabels() {
   });
 }
 
+function updateNextCopy() {
+  const isSpanish = currentLang === "es";
+  nextLabel.textContent = isSpanish ? "presiona el umbral" : "press the threshold";
+  nextSub.textContent = isSpanish ? "siguiente" : "next";
+}
+
 function updateInfoModalCopy() {
   const isSpanish = currentLang === "es";
   infoTitle.textContent = isSpanish ? "umbral" : "threshold";
 
-  // Order by current language, but keep both (nice bilingual cue)
   if (isSpanish) {
     infoLabel1.textContent = "Umbral";
     infoText1.textContent = "El límite entre lo conocido y lo que empieza a revelarse.";
@@ -77,19 +86,17 @@ function showQuestion() {
 }
 
 function startExperience() {
-  // Hide landing, show intro
   langScreen.style.display = "none";
   intro.style.display = "flex";
   ui.style.display = "none";
 
-  // Reset intro animation class in case of re-entry
   intro.classList.remove("fade-out");
 
   setIntroByLang();
   updateCategoryLabels();
   updateInfoModalCopy();
+  updateNextCopy();
 
-  // Fade intro out, then show UI
   requestAnimationFrame(() => {
     intro.classList.add("fade-out");
   });
@@ -124,7 +131,7 @@ fieldButtons.forEach(btn => {
   });
 });
 
-/* ---------- Continue ---------- */
+/* ---------- Threshold button = next ---------- */
 
 nextBtn.addEventListener("click", showQuestion);
 
@@ -136,10 +143,19 @@ langToggle.addEventListener("click", () => {
   currentLang = currentLang === "en" ? "es" : "en";
   localStorage.setItem("threshold_lang", currentLang);
 
-  setIntroByLang();         // updates title + intro copy (title for tab)
+  setIntroByLang();
   updateCategoryLabels();
   updateInfoModalCopy();
+  updateNextCopy();
   showQuestion();
+});
+
+/* Allow Enter/Space on language toggle for accessibility */
+langToggle.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    langToggle.click();
+  }
 });
 
 /* ---------- Info modal ---------- */
@@ -156,17 +172,15 @@ function closeInfo() {
 infoBtn.addEventListener("click", openInfo);
 infoClose.addEventListener("click", closeInfo);
 
-// Click outside card closes
 infoModal.addEventListener("click", (e) => {
   if (e.target === infoModal) closeInfo();
 });
 
-// ESC closes
 window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeInfo();
 });
 
-/* ---------- Auto-restore language if previously chosen ---------- */
+/* ---------- Auto-restore language ---------- */
 
 window.addEventListener("load", () => {
   const saved = localStorage.getItem("threshold_lang");
@@ -174,7 +188,6 @@ window.addEventListener("load", () => {
     currentLang = saved;
     startExperience();
   } else {
-    // first visit: show landing
     langScreen.style.display = "flex";
     intro.style.display = "none";
     ui.style.display = "none";
