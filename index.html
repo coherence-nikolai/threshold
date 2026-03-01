@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>threshold</title>
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=9" />
 </head>
 <body>
 
@@ -15,30 +15,31 @@
       <div class="lang-subtitle">Elige idioma</div>
 
       <div class="lang-buttons">
-        <button id="choose-en" class="lang-btn" type="button">EN</button>
-        <button id="choose-es" class="lang-btn" type="button">ES</button>
+        <button id="choose-en" class="lang-btn" type="button">English</button>
+        <button id="choose-es" class="lang-btn" type="button">Español</button>
       </div>
 
       <div class="lang-footnote">You can switch later.</div>
     </div>
   </div>
 
-  <!-- Intro Title + Whisper -->
+  <!-- Intro Title + Whisper (staged by JS/CSS) -->
   <div id="intro" style="display:none;">
     <div id="intro-title">threshold</div>
     <div id="intro-subtitle">a question is a doorway</div>
   </div>
 
   <!-- Main UI -->
-  <div id="ui" style="display:none; flex-direction:column; align-items:center; gap:28px;">
+  <div id="ui" style="display:none;">
+
+    <!-- small top-right toggle -->
+    <button id="language-toggle" type="button" aria-label="Toggle language">EN | ES</button>
 
     <div id="topbar">
-      <div id="language-toggle" role="button" tabindex="0" aria-label="Toggle language">EN | ES</div>
-      <button id="info-btn" aria-label="About Threshold" type="button">i</button>
+      <button id="info-btn" type="button" aria-label="About">i</button>
     </div>
 
     <div id="field-selector" aria-label="Categories">
-
       <button data-field="self" type="button">
         <span class="symbol">○</span>
         <span class="label" data-en="Self" data-es="Yo">Self</span>
@@ -68,23 +69,22 @@
         <span class="symbol">—</span>
         <span class="label" data-en="Silence" data-es="Silencio">Silence</span>
       </button>
-
     </div>
 
     <div id="question-container" aria-live="polite">
-      <div id="question"></div>
+      <div id="question" class="q-in"></div>
     </div>
 
     <!-- Threshold button (press to continue) -->
     <button id="next" class="threshold-btn" type="button" aria-label="Next question">
       <span class="threshold-visual" aria-hidden="true">
-        <span class="ring ring-outer"></span>
-        <span class="ring ring-mid"></span>
-        <span class="ring ring-inner"></span>
-        <span class="threshold-line"></span>
-        <span class="threshold-core"></span>
+        <span class="mirror"></span>
+        <span class="sheen"></span>
+        <span class="rim"></span>
+        <span class="rim rim2"></span>
+        <span class="gate"></span>
+        <span class="spark"></span>
       </span>
-      <span class="threshold-text" id="next-label">press the threshold</span>
       <span class="threshold-sub" id="next-sub">next</span>
     </button>
 
@@ -113,7 +113,7 @@
     </div>
   </div>
 
-  <script src="questions.js?v=7"></script>
-  <script src="engine.js?v=7"></script>
+  <script src="questions.js?v=9"></script>
+  <script src="engine.js?v=9"></script>
 </body>
 </html>
