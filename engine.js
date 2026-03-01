@@ -11,7 +11,8 @@ const ui = document.getElementById("ui");
 const questionEl = document.getElementById("question");
 const nextBtn = document.getElementById("next");
 const langToggle = document.getElementById("language-toggle");
-const fieldButtons = document.querySelectorAll("#field-selector button");
+
+const catButtons = document.querySelectorAll(".cat");
 
 const infoBtn = document.getElementById("info-btn");
 const infoModal = document.getElementById("info-modal");
@@ -23,6 +24,9 @@ const infoText1 = document.getElementById("info-text-1");
 const infoLabel2 = document.getElementById("info-label-2");
 const infoText2 = document.getElementById("info-text-2");
 
+const nextHint = document.getElementById("next-hint");
+
+/* ------- Copy ------- */
 function setIntroByLang() {
   const isSpanish = currentLang === "es";
 
@@ -34,10 +38,13 @@ function setIntroByLang() {
   document.title = titleText;
   document.getElementById("intro-title").textContent = titleText;
   document.getElementById("intro-subtitle").textContent = subtitleText;
+
+  // tiny hint under portal
+  nextHint.textContent = isSpanish ? "siguiente" : "next";
 }
 
 function updateCategoryLabels() {
-  document.querySelectorAll(".label").forEach(label => {
+  document.querySelectorAll(".name").forEach(label => {
     const text = label.dataset[currentLang];
     if (text) label.textContent = text;
   });
@@ -63,16 +70,15 @@ function updateInfoModalCopy() {
 }
 
 /* ------- Active category ------- */
-function setActiveFieldButton() {
-  fieldButtons.forEach(b => b.classList.toggle("active", b.dataset.field === currentField));
+function setActiveCat() {
+  catButtons.forEach(b => b.classList.toggle("active", b.dataset.field === currentField));
 }
 
 /* ------- Question transitions ------- */
 function pickQuestion() {
   const pool = QUESTION_DATA?.[currentLang]?.[currentField];
   if (!pool || pool.length === 0) return "...";
-  const i = Math.floor(Math.random() * pool.length);
-  return pool[i];
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function showQuestion({ instant = false } = {}) {
@@ -99,37 +105,23 @@ function showQuestion({ instant = false } = {}) {
     questionEl.classList.remove("q-out");
     questionEl.classList.add("q-in");
 
-    setTimeout(() => {
-      isTransitioning = false;
-    }, 340);
+    setTimeout(() => { isTransitioning = false; }, 340);
   }, 340);
 }
 
-/* ------- Intro sequence (staged) ------- */
+/* ------- Intro sequence ------- */
 function runIntroSequence() {
   intro.style.display = "flex";
   intro.classList.remove("stage-title", "stage-whisper", "fade-out");
 
-  // 1) title arrives
-  requestAnimationFrame(() => {
-    intro.classList.add("stage-title");
-  });
+  requestAnimationFrame(() => intro.classList.add("stage-title"));
+  setTimeout(() => intro.classList.add("stage-whisper"), 750);
+  setTimeout(() => intro.classList.add("fade-out"), 2400);
 
-  // 2) whisper arrives
-  setTimeout(() => {
-    intro.classList.add("stage-whisper");
-  }, 750);
-
-  // 3) fade out
-  setTimeout(() => {
-    intro.classList.add("fade-out");
-  }, 2400);
-
-  // 4) show UI
   setTimeout(() => {
     intro.style.display = "none";
     ui.style.display = "flex";
-    setActiveFieldButton();
+    setActiveCat();
     showQuestion({ instant: true });
   }, 3800);
 }
@@ -145,7 +137,7 @@ function startExperience() {
   runIntroSequence();
 }
 
-/* ------- Landing ------- */
+/* ------- Landing (always show) ------- */
 chooseEnBtn.addEventListener("click", () => {
   currentLang = "en";
   localStorage.setItem("threshold_lang", "en");
@@ -158,11 +150,11 @@ chooseEsBtn.addEventListener("click", () => {
   startExperience();
 });
 
-/* ------- Category selection ------- */
-fieldButtons.forEach(btn => {
+/* ------- Categories ------- */
+catButtons.forEach(btn => {
   btn.addEventListener("click", () => {
     currentField = btn.dataset.field;
-    setActiveFieldButton();
+    setActiveCat();
     showQuestion();
   });
 });
@@ -203,15 +195,13 @@ window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeInfo();
 });
 
-/* ------- Auto-restore ------- */
+/* ------- On load: show landing (but remember last choice internally) ------- */
 window.addEventListener("load", () => {
   const saved = localStorage.getItem("threshold_lang");
-  if (saved === "en" || saved === "es") {
-    currentLang = saved;
-    startExperience();
-  } else {
-    langScreen.style.display = "flex";
-    intro.style.display = "none";
-    ui.style.display = "none";
-  }
+  if (saved === "en" || saved === "es") currentLang = saved;
+  else currentLang = "en";
+
+  langScreen.style.display = "flex";
+  intro.style.display = "none";
+  ui.style.display = "none";
 });
