@@ -1,5 +1,9 @@
-let currentLang = "en";
+let currentLang = null;   // chosen on landing
 let currentField = "self";
+
+const langScreen = document.getElementById("lang-screen");
+const chooseEnBtn = document.getElementById("choose-en");
+const chooseEsBtn = document.getElementById("choose-es");
 
 const intro = document.getElementById("intro");
 const ui = document.getElementById("ui");
@@ -8,26 +12,21 @@ const nextBtn = document.getElementById("next");
 const langToggle = document.getElementById("language-toggle");
 const fieldButtons = document.querySelectorAll("#field-selector button");
 
-/* ---------------------------
-   Intro fade logic
----------------------------- */
+function setTitleByLang() {
+  const titleText = currentLang === "es" ? "umbral" : "threshold";
+  document.title = titleText;
+  intro.textContent = titleText;
+}
 
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    intro.style.display = "none";
-    ui.style.display = "flex";
-    showQuestion();
-  }, 6000);
-});
-
-/* ---------------------------
-   Show Question
----------------------------- */
+function updateCategoryLabels() {
+  document.querySelectorAll(".label").forEach(label => {
+    const text = label.dataset[currentLang];
+    if (text) label.textContent = text;
+  });
+}
 
 function showQuestion() {
-  const pool =
-    QUESTION_DATA[currentLang] &&
-    QUESTION_DATA[currentLang][currentField];
+  const pool = QUESTION_DATA?.[currentLang]?.[currentField];
 
   if (!pool || pool.length === 0) {
     questionEl.textContent = "...";
@@ -38,42 +37,79 @@ function showQuestion() {
   questionEl.textContent = pool[randomIndex];
 }
 
-/* ---------------------------
-   Field Selection
----------------------------- */
+function startExperience() {
+  // hide landing, show intro
+  langScreen.style.display = "none";
+  intro.style.display = "flex";
+  ui.style.display = "none";
 
-fieldButtons.forEach(button => {
-  button.addEventListener("click", () => {
-    currentField = button.dataset.field;
+  setTitleByLang();
+  updateCategoryLabels();
+
+  // fade intro out, then show UI
+  // (we add class so CSS anim runs)
+  requestAnimationFrame(() => {
+    intro.classList.add("fade-out");
+  });
+
+  setTimeout(() => {
+    intro.style.display = "none";
+    ui.style.display = "flex";
+    showQuestion();
+  }, 3200);
+}
+
+/* ---------- Landing choice ---------- */
+
+chooseEnBtn.addEventListener("click", () => {
+  currentLang = "en";
+  localStorage.setItem("threshold_lang", "en");
+  startExperience();
+});
+
+chooseEsBtn.addEventListener("click", () => {
+  currentLang = "es";
+  localStorage.setItem("threshold_lang", "es");
+  startExperience();
+});
+
+/* ---------- Field selection ---------- */
+
+fieldButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentField = btn.dataset.field;
     showQuestion();
   });
 });
 
-/* ---------------------------
-   Continue Button
----------------------------- */
+/* ---------- Continue ---------- */
 
 nextBtn.addEventListener("click", showQuestion);
 
-/* ---------------------------
-   Language Toggle
----------------------------- */
+/* ---------- Language toggle (after start) ---------- */
 
 langToggle.addEventListener("click", () => {
+  if (!currentLang) return;
+
   currentLang = currentLang === "en" ? "es" : "en";
+  localStorage.setItem("threshold_lang", currentLang);
+
+  setTitleByLang();
   updateCategoryLabels();
   showQuestion();
 });
 
-/* ---------------------------
-   Update Category Labels
----------------------------- */
+/* ---------- Auto-restore language if previously chosen ---------- */
 
-function updateCategoryLabels() {
-  document.querySelectorAll(".label").forEach(label => {
-    const text = label.dataset[currentLang];
-    if (text) {
-      label.textContent = text;
-    }
-  });
-}
+window.addEventListener("load", () => {
+  const saved = localStorage.getItem("threshold_lang");
+  if (saved === "en" || saved === "es") {
+    currentLang = saved;
+    startExperience();
+  } else {
+    // first visit: show landing
+    langScreen.style.display = "flex";
+    intro.style.display = "none";
+    ui.style.display = "none";
+  }
+});
