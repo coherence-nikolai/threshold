@@ -151,13 +151,132 @@ function setTextLevel(level) {
   const l = Math.min(3, Math.max(1, level));
   localStorage.setItem(KEY_TEXT, String(l));
   const root = document.documentElement;
+  // All levels shifted up — bigger by default
   const sizes = [
-    ['clamp(1.75rem, 4vw, 2.5rem)',   '1.48'],
-    ['clamp(1.95rem, 4.6vw, 2.85rem)','1.52'],
-    ['clamp(2.2rem,  5.2vw, 3.2rem)', '1.56'],
+    ['clamp(2rem,   5.0vw, 2.8rem)', '1.52'],
+    ['clamp(2.2rem, 5.8vw, 3.2rem)', '1.55'],
+    ['clamp(2.5rem, 6.5vw, 3.7rem)', '1.58'],
   ];
   root.style.setProperty('--qSize', sizes[l-1][0]);
   root.style.setProperty('--qLine', sizes[l-1][1]);
+}
+
+/* ---------- Italic toggle (accessibility) ---------- */
+const KEY_ITALIC = 'threshold_italic';
+
+function italicEnabled() {
+  return localStorage.getItem(KEY_ITALIC) !== 'off';
+}
+
+function setItalic(on) {
+  localStorage.setItem(KEY_ITALIC, on ? 'on' : 'off');
+  document.body.classList.toggle('no-italic', !on);
+}
+
+/* Long-press A+ to toggle italic */
+let italicPressTimer = null;
+sizeUp.addEventListener('pointerdown', () => {
+  italicPressTimer = setTimeout(() => {
+    italicPressTimer = null;
+    setItalic(!italicEnabled());
+    showSizePop();
+  }, 600);
+});
+sizeUp.addEventListener('pointerup', () => {
+  if (italicPressTimer) {
+    clearTimeout(italicPressTimer);
+    italicPressTimer = null;
+    setTextLevel(getTextLevel() + 1);
+    showSizePop();
+  }
+});
+sizeUp.addEventListener('pointerleave', () => {
+  if (italicPressTimer) { clearTimeout(italicPressTimer); italicPressTimer = null; }
+});
+
+/* ---------- Binaural drone ---------- */
+let droneLeft  = null;
+let droneRight = null;
+let droneMaster = null;
+let droneStarted = false;
+
+function startDrone() {
+  if (droneStarted) return;
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  droneStarted = true;
+
+  const now = ctx.currentTime;
+
+  // Master gain — fades in slowly over 10s
+  droneMaster = ctx.createGain();
+  droneMaster.gain.setValueAtTime(0, now);
+  droneMaster.gain.linearRampToValueAtTime(0.0, now + 0.1);
+  droneMaster.gain.linearRampToValueAtTime(0.018, now + 10);
+  droneMaster.connect(ctx.destination);
+
+  // Channel merger for stereo separation
+  const merger = ctx.createChannelMerger(2);
+  merger.connect(droneMaster);
+
+  // Left ear: 136.1Hz (OM frequency)
+  const oscL = ctx.createOscillator();
+  oscL.type = 'sine';
+  oscL.frequency.setValueAtTime(136.1, now);
+  const gainL = ctx.createGain();
+  gainL.gain.setValueAtTime(1, now);
+  oscL.connect(gainL);
+  gainL.connect(merger, 0, 0); // left channel
+
+  // Right ear: 140.1Hz (4Hz difference = theta)
+  const oscR = ctx.createOscillator();
+  oscR.type = 'sine';
+  oscR.frequency.setValueAtTime(140.1, now);
+  const gainR = ctx.createGain();
+  gainR.gain.setValueAtTime(1, now);
+  oscR.connect(gainR);
+  gainR.connect(merger, 0, 1); // right channel
+
+  // Very subtle second harmonic for warmth (mono, not binaural)
+  const oscHarm = ctx.createOscillator();
+  oscHarm.type = 'sine';
+  oscHarm.frequency.setValueAtTime(272.2, now); // 136.1 × 2
+  const gainHarm = ctx.createGain();
+  gainHarm.gain.setValueAtTime(0.12, now);
+  oscHarm.connect(gainHarm);
+  gainHarm.connect(droneMaster);
+
+  oscL.start(now);
+  oscR.start(now);
+  oscHarm.start(now);
+
+  droneLeft  = oscL;
+  droneRight = oscR;
+}
+
+function stopDrone() {
+  if (!droneStarted || !droneMaster) return;
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+  droneMaster.gain.linearRampToValueAtTime(0, now + 2);
+  setTimeout(() => {
+    try { droneLeft.stop(); droneRight.stop(); } catch(e) {}
+    droneStarted = false;
+  }, 2200);
+}
+
+function setDroneEnabled(on) {
+  if (on) {
+    startDrone();
+    if (droneMaster) {
+      const ctx = ensureAudio();
+      const now = ctx.currentTime;
+      droneMaster.gain.linearRampToValueAtTime(0.018, now + 3);
+    }
+  } else {
+    stopDrone();
+  }
 }
 
 /* ---------- Copy ---------- */
@@ -301,6 +420,7 @@ function enter(lang) {
   landing.classList.toggle('pick-es', lang === 'es');
 
   playCrossingTone();
+  if (soundEnabled()) startDrone();
 
   setTimeout(() => landing.classList.add('fade-out'), 900);
   setTimeout(() => {
@@ -313,7 +433,12 @@ function enter(lang) {
 soundBtn.addEventListener('click', () => {
   const on = soundEnabled();
   setSoundEnabled(!on);
-  if (!on) ensureAudio();
+  if (!on) {
+    ensureAudio();
+    setDroneEnabled(true);
+  } else {
+    setDroneEnabled(false);
+  }
 });
 
 /* Long-press for size, tap for language */
@@ -355,7 +480,6 @@ langToggle.addEventListener('pointercancel', () => {
 });
 
 sizeDown.addEventListener('click', () => { setTextLevel(getTextLevel() - 1); showSizePop(); });
-sizeUp.addEventListener('click',   () => { setTextLevel(getTextLevel() + 1); showSizePop(); });
 
 catButtons.forEach(btn => {
   btn.addEventListener('click', () => {
@@ -400,6 +524,7 @@ window.addEventListener('load', () => {
 
   setTextLevel(getTextLevel());
   setSoundEnabled(soundEnabled());
+  setItalic(italicEnabled());
 
   landing.style.display = 'flex';
   intro.style.display   = 'none';

@@ -17,9 +17,9 @@
   --amber-ghost:rgba(201,158,79,0.09);
   --border:    rgba(237,230,214,0.10);
 
-  /* Question size levels */
-  --qSize: clamp(1.95rem, 4.6vw, 2.85rem);
-  --qLine: 1.52;
+  /* Question size levels — default shifted up */
+  --qSize: clamp(2.2rem, 5.8vw, 3.2rem);
+  --qLine: 1.55;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -532,13 +532,14 @@ body::after {
   max-width: 44rem;
   font-family: 'Cormorant Garamond', serif;
   font-size: var(--qSize);
-  font-weight: 400;
+  font-weight: 500;
   font-style: italic;
   line-height: var(--qLine);
   letter-spacing: 0.01em;
   color: var(--char);
   text-align: center;
   text-wrap: pretty;
+  text-shadow: 0 0 40px rgba(237,230,214,0.12);
 
   opacity: 0;
   transform: translateY(12px);
@@ -547,13 +548,20 @@ body::after {
 }
 
 #question.show {
-  opacity: 0.96;
+  opacity: 1;
   transform: translateY(0);
 }
 #question.hide {
   opacity: 0;
   transform: translateY(-8px);
   transition: opacity 700ms ease, transform 700ms ease;
+}
+
+/* Non-italic mode for dyslexia accessibility */
+body.no-italic #question {
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0.015em;
 }
 
 /* ══ CROSS BUTTON — the seam you touch ══ */
@@ -655,15 +663,17 @@ body::after {
 
 .cross-hint {
   font-family: 'Cormorant SC', serif;
-  font-size: clamp(0.68rem, 1.8vw, 0.82rem);
+  font-size: clamp(0.72rem, 1.8vw, 0.85rem);
   font-weight: 300;
   letter-spacing: 0.24em;
-  color: var(--char-ghost);
+  color: var(--char-dim);
   text-transform: lowercase;
-  transition: color 300ms ease;
+  opacity: 0.75;
+  transition: color 300ms ease, opacity 300ms ease;
 }
 .cross-btn:hover .cross-hint {
-  color: var(--char-dim);
+  color: var(--char);
+  opacity: 1;
 }
 
 /* ══ INFO MODAL ══ */
