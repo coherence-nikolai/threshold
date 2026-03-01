@@ -4,62 +4,78 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>threshold</title>
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
 
-  <div id="intro">threshold</div>
+  <!-- Language Landing Screen -->
+  <div id="lang-screen" aria-label="Language selection">
+    <div class="lang-card">
+      <div class="lang-title">Choose language</div>
+      <div class="lang-subtitle">Elige idioma</div>
 
+      <div class="lang-buttons">
+        <button id="choose-en" class="lang-btn">EN</button>
+        <button id="choose-es" class="lang-btn">ES</button>
+      </div>
+
+      <div class="lang-footnote">You can switch later.</div>
+    </div>
+  </div>
+
+  <!-- Intro Title -->
+  <div id="intro" style="display:none;">threshold</div>
+
+  <!-- Main UI -->
   <div id="ui" style="display:none; flex-direction:column; align-items:center; gap:28px;">
 
-    <div id="language-toggle" style="cursor:pointer; font-size:0.8rem; opacity:0.6;">
+    <div id="language-toggle" style="cursor:pointer;">
       EN | ES
     </div>
 
-    <div id="field-selector" style="display:flex; gap:22px;">
+    <div id="field-selector">
 
       <button data-field="self">
         <span class="symbol">○</span>
-        <span class="label">Self</span>
+        <span class="label" data-en="Self" data-es="Yo">Self</span>
       </button>
 
       <button data-field="relationship">
         <span class="symbol">∞</span>
-        <span class="label">Relationship</span>
+        <span class="label" data-en="Relationship" data-es="Vínculo">Relationship</span>
       </button>
 
       <button data-field="body">
         <span class="symbol">△</span>
-        <span class="label">Body</span>
+        <span class="label" data-en="Body" data-es="Cuerpo">Body</span>
       </button>
 
       <button data-field="shadow">
         <span class="symbol">◑</span>
-        <span class="label">Shadow</span>
+        <span class="label" data-en="Shadow" data-es="Sombra">Shadow</span>
       </button>
 
       <button data-field="time">
         <span class="symbol">⌛</span>
-        <span class="label">Time</span>
+        <span class="label" data-en="Time" data-es="Tiempo">Time</span>
       </button>
 
       <button data-field="silence">
         <span class="symbol">—</span>
-        <span class="label">Silence</span>
+        <span class="label" data-en="Silence" data-es="Silencio">Silence</span>
       </button>
 
     </div>
 
     <div id="question-container">
-      <div id="question" style="text-align:center; max-width:700px; line-height:1.6;"></div>
+      <div id="question"></div>
     </div>
 
-    <button id="next" style="margin-top:12px;">Continue</button>
+    <button id="next">Continue</button>
 
   </div>
 
-  <script src="questions.js?v=4"></script>
-  <script src="engine.js?v=4"></script>
-
+  <script src="questions.js?v=5"></script>
+  <script src="engine.js?v=5"></script>
 </body>
 </html>
