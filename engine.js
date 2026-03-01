@@ -13,9 +13,6 @@ const nextBtn = document.getElementById("next");
 const langToggle = document.getElementById("language-toggle");
 const fieldButtons = document.querySelectorAll("#field-selector button");
 
-const nextLabel = document.getElementById("next-label");
-const nextSub = document.getElementById("next-sub");
-
 const infoBtn = document.getElementById("info-btn");
 const infoModal = document.getElementById("info-modal");
 const infoClose = document.getElementById("info-close");
@@ -25,8 +22,6 @@ const infoLabel1 = document.getElementById("info-label-1");
 const infoText1 = document.getElementById("info-text-1");
 const infoLabel2 = document.getElementById("info-label-2");
 const infoText2 = document.getElementById("info-text-2");
-
-/* ---------- Copy ---------- */
 
 function setIntroByLang() {
   const isSpanish = currentLang === "es";
@@ -48,13 +43,6 @@ function updateCategoryLabels() {
   });
 }
 
-function updateNextCopy() {
-  const isSpanish = currentLang === "es";
-  // more resonant than "press the threshold"
-  nextLabel.textContent = isSpanish ? "cruzar" : "cross";
-  nextSub.textContent = isSpanish ? "siguiente" : "next";
-}
-
 function updateInfoModalCopy() {
   const isSpanish = currentLang === "es";
   infoTitle.textContent = isSpanish ? "umbral" : "threshold";
@@ -74,8 +62,12 @@ function updateInfoModalCopy() {
   }
 }
 
-/* ---------- Questions (with fade out/in) ---------- */
+/* ------- Active category ------- */
+function setActiveFieldButton() {
+  fieldButtons.forEach(b => b.classList.toggle("active", b.dataset.field === currentField));
+}
 
+/* ------- Question transitions ------- */
 function pickQuestion() {
   const pool = QUESTION_DATA?.[currentLang]?.[currentField];
   if (!pool || pool.length === 0) return "...";
@@ -83,17 +75,14 @@ function pickQuestion() {
   return pool[i];
 }
 
-function setQuestionText(text) {
-  questionEl.textContent = text;
-}
-
 function showQuestion({ instant = false } = {}) {
   if (!currentLang) return;
 
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const newQ = pickQuestion();
 
-  if (instant || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    setQuestionText(newQ);
+  if (instant || reduced) {
+    questionEl.textContent = newQ;
     questionEl.classList.remove("q-out");
     questionEl.classList.add("q-in");
     return;
@@ -102,49 +91,61 @@ function showQuestion({ instant = false } = {}) {
   if (isTransitioning) return;
   isTransitioning = true;
 
-  // fade out
   questionEl.classList.add("q-out");
   questionEl.classList.remove("q-in");
 
-  // after fade out, swap text and fade in
   setTimeout(() => {
-    setQuestionText(newQ);
+    questionEl.textContent = newQ;
     questionEl.classList.remove("q-out");
     questionEl.classList.add("q-in");
 
     setTimeout(() => {
       isTransitioning = false;
-    }, 300);
-  }, 300);
+    }, 340);
+  }, 340);
 }
 
-/* ---------- Start ---------- */
+/* ------- Intro sequence (staged) ------- */
+function runIntroSequence() {
+  intro.style.display = "flex";
+  intro.classList.remove("stage-title", "stage-whisper", "fade-out");
+
+  // 1) title arrives
+  requestAnimationFrame(() => {
+    intro.classList.add("stage-title");
+  });
+
+  // 2) whisper arrives
+  setTimeout(() => {
+    intro.classList.add("stage-whisper");
+  }, 750);
+
+  // 3) fade out
+  setTimeout(() => {
+    intro.classList.add("fade-out");
+  }, 2400);
+
+  // 4) show UI
+  setTimeout(() => {
+    intro.style.display = "none";
+    ui.style.display = "flex";
+    setActiveFieldButton();
+    showQuestion({ instant: true });
+  }, 3800);
+}
 
 function startExperience() {
   langScreen.style.display = "none";
-  intro.style.display = "flex";
   ui.style.display = "none";
-
-  intro.classList.remove("fade-out");
 
   setIntroByLang();
   updateCategoryLabels();
   updateInfoModalCopy();
-  updateNextCopy();
 
-  requestAnimationFrame(() => {
-    intro.classList.add("fade-out");
-  });
-
-  setTimeout(() => {
-    intro.style.display = "none";
-    ui.style.display = "flex";
-    showQuestion({ instant: true });
-  }, 3200);
+  runIntroSequence();
 }
 
-/* ---------- Landing ---------- */
-
+/* ------- Landing ------- */
 chooseEnBtn.addEventListener("click", () => {
   currentLang = "en";
   localStorage.setItem("threshold_lang", "en");
@@ -157,21 +158,19 @@ chooseEsBtn.addEventListener("click", () => {
   startExperience();
 });
 
-/* ---------- Category selection ---------- */
-
+/* ------- Category selection ------- */
 fieldButtons.forEach(btn => {
   btn.addEventListener("click", () => {
     currentField = btn.dataset.field;
+    setActiveFieldButton();
     showQuestion();
   });
 });
 
-/* ---------- Next ---------- */
-
+/* ------- Next ------- */
 nextBtn.addEventListener("click", () => showQuestion());
 
-/* ---------- Language toggle ---------- */
-
+/* ------- Language toggle ------- */
 langToggle.addEventListener("click", () => {
   if (!currentLang) return;
 
@@ -181,19 +180,10 @@ langToggle.addEventListener("click", () => {
   setIntroByLang();
   updateCategoryLabels();
   updateInfoModalCopy();
-  updateNextCopy();
   showQuestion();
 });
 
-langToggle.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" || e.key === " ") {
-    e.preventDefault();
-    langToggle.click();
-  }
-});
-
-/* ---------- Info modal ---------- */
-
+/* ------- Info modal ------- */
 function openInfo() {
   updateInfoModalCopy();
   infoModal.classList.remove("hidden");
@@ -213,8 +203,7 @@ window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeInfo();
 });
 
-/* ---------- Auto-restore ---------- */
-
+/* ------- Auto-restore ------- */
 window.addEventListener("load", () => {
   const saved = localStorage.getItem("threshold_lang");
   if (saved === "en" || saved === "es") {
