@@ -1,5 +1,5 @@
 /* =========================
-   Threshold – Full Style v5
+   Threshold – Full Style v6
    ========================= */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -79,28 +79,41 @@ body {
   opacity: 0.4;
 }
 
-/* ---------- Intro Title ---------- */
+/* ---------- Intro Title + Whisper ---------- */
 
 #intro {
   position: fixed;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+#intro-title {
   font-size: 1.4rem;
   letter-spacing: 0.4em;
   text-transform: lowercase;
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
-/* We will animate this via JS (adding .fade-out) */
+#intro-subtitle {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  opacity: 0.4;
+  text-transform: lowercase;
+}
+
+/* We animate intro via JS adding .fade-out */
 #intro.fade-out {
   animation: introFadeOut 3.2s forwards;
 }
 
 @keyframes introFadeOut {
-  0%   { opacity: 0.7; }
-  70%  { opacity: 0.7; }
+  0%   { opacity: 0.9; }
+  70%  { opacity: 0.9; }
   100% { opacity: 0; visibility: hidden; }
 }
 
@@ -115,17 +128,42 @@ body {
   width: 100%;
 }
 
-/* Language Toggle */
+/* Topbar (language + info) */
+
+#topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 
 #language-toggle {
   font-size: 0.8rem;
   opacity: 0.55;
   letter-spacing: 0.12em;
+  cursor: pointer;
   transition: opacity 0.25s ease;
 }
 
 #language-toggle:hover {
   opacity: 0.85;
+}
+
+#info-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.18);
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+#info-btn:hover {
+  opacity: 0.9;
+  border-color: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.06);
 }
 
 /* Field Selector */
@@ -153,14 +191,10 @@ body {
   transform: translateY(-2px);
 }
 
-/* Symbol */
-
 .symbol {
   font-size: 1.6rem;
   line-height: 1;
 }
-
-/* Faint label (always visible, stronger on hover/focus) */
 
 .label {
   font-size: 0.65rem;
@@ -203,4 +237,68 @@ body {
 #next:hover {
   background: rgba(255,255,255,0.08);
   border-color: rgba(255,255,255,0.4);
+}
+
+/* ---------- Info Modal ---------- */
+
+#info-modal.hidden { display: none; }
+
+#info-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.55);
+  padding: 18px;
+}
+
+#info-card {
+  width: min(620px, 92vw);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(10,12,18,0.75);
+  backdrop-filter: blur(10px);
+  padding: 22px 18px 18px;
+  position: relative;
+  text-align: left;
+}
+
+#info-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.6rem;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.25s ease;
+}
+
+#info-close:hover { opacity: 0.9; }
+
+.info-title {
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+  text-transform: lowercase;
+  opacity: 0.8;
+  margin-bottom: 14px;
+}
+
+.info-block { margin-top: 14px; }
+
+.info-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 6px;
+}
+
+.info-text {
+  font-size: 1.0rem;
+  line-height: 1.65;
+  opacity: 0.92;
 }
